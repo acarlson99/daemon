@@ -25,6 +25,7 @@ int g_lockfd = 0;
 
 void exit_prog(void)
 {
+	Tintin_reporter::get().log(LOG_NOTICE, "Shutting down daemon");
 	unlink(LOCKFILE);
 	flock(g_lockfd, LOCK_UN);
 	close(g_lockfd);
@@ -124,8 +125,6 @@ void handle_request(std::vector<int> &client_socks, fd_set &fd_list)
 				Tintin_reporter::get().log(LOG_INFO, "Message received: %s",
 										   msg.c_str());
 				if (msg.compare("quit") == 0) {
-					Tintin_reporter::get().log(LOG_NOTICE,
-											   "Shutting down daemon");
 					exit_prog();
 				}
 			}
