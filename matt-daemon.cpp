@@ -1,5 +1,3 @@
-#include "Tintin_reporter.hpp"
-#include <algorithm>
 #include <arpa/inet.h>
 #include <signal.h>
 #include <stdio.h>
@@ -11,7 +9,11 @@
 #include <sys/types.h>
 #include <syslog.h>
 #include <unistd.h>
+
+#include <algorithm>
 #include <vector>
+
+#include "Tintin_reporter.hpp"
 
 #define LOCKFILE "/var/lock/matt-daemon.lock"
 
@@ -19,13 +21,13 @@
 #define BACKLOG		5
 #define NUM_CLIENTS 5
 
-int g_fd = 0;
+int g_lockfd = 0;
 
 void exit_prog(void)
 {
 	unlink(LOCKFILE);
-	flock(g_fd, LOCK_UN);
-	close(g_fd);
+	flock(g_lockfd, LOCK_UN);
+	close(g_lockfd);
 	exit(EXIT_SUCCESS);
 }
 
@@ -199,7 +201,7 @@ int main()
 	daemonize();
 
 	// set signal handlers
-	g_fd = fd;
+	g_lockfd = fd;
 	signal(SIGINT, handle_signal);
 	signal(SIGQUIT, handle_signal);
 	signal(SIGTERM, handle_signal);
