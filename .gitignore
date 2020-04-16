@@ -1,0 +1,3 @@
+*.o
+/matt-daemon
+.vscode
