@@ -1,7 +1,6 @@
 #include "Tintin_reporter.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
-#include <iostream>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,20 +15,24 @@
 
 #define LOCKFILE "/var/lock/matt-daemon.lock"
 
-#define BAD_CONN	(-1)
 #define PORT		4242
 #define BACKLOG		5
 #define NUM_CLIENTS 5
 
 int g_fd = 0;
 
-void end(int sig)
+void exit_prog(void)
 {
-	(void)sig;
 	unlink(LOCKFILE);
 	flock(g_fd, LOCK_UN);
 	close(g_fd);
 	exit(EXIT_SUCCESS);
+}
+
+void handle_signal(int sig)
+{
+	Tintin_reporter::get().log("Received shutdown signal");
+	exit_prog();
 }
 
 int setup_server(void)
@@ -67,7 +70,7 @@ int accept_client(struct sockaddr_in *client, int sock_s)
 	len = sizeof(struct sockaddr_in);
 	if ((sock_c = accept(sock_s, (struct sockaddr *)client, (socklen_t *)&len))
 		< 0)
-		return (BAD_CONN);
+		return (-1);
 	return (sock_c);
 }
 
@@ -116,10 +119,12 @@ void handle_request(std::vector<int> &client_socks, fd_set &fd_list)
 			}
 			msg.append(buf);
 			if (msg.length() > 0) {
-				Tintin_reporter::get().log(LOG_INFO, "Message received: %s", msg.c_str());
+				Tintin_reporter::get().log(LOG_INFO, "Message received: %s",
+										   msg.c_str());
 				if (msg.compare("quit") == 0) {
-					Tintin_reporter::get().log(LOG_NOTICE, "Shutting down daemon");
-					end(0);
+					Tintin_reporter::get().log(LOG_NOTICE,
+											   "Shutting down daemon");
+					exit_prog();
 				}
 			}
 			offset = 0;
@@ -144,7 +149,8 @@ void listen_and_serve(int sock_s)
 				max_sock = client;
 		}
 		if (select(max_sock + 1, &fd_list, NULL, NULL, NULL) < 0) {
-			Tintin_reporter::get().log(LOG_CRIT, "Failed to select: %s", strerror(errno));
+			Tintin_reporter::get().log(LOG_CRIT, "Failed to select: %s",
+									   strerror(errno));
 			return;
 		}
 		if (FD_ISSET(sock_s, &fd_list)) {
@@ -170,11 +176,9 @@ void daemonize()
 	if (setsid() < 0)
 		exit(EXIT_FAILURE);
 	umask(0);
-#ifdef NDEBUG
 	fclose(stdout);
 	fclose(stderr);
 	fclose(stdin);
-#endif
 }
 
 int main()
@@ -196,10 +200,9 @@ int main()
 
 	// set signal handlers
 	g_fd = fd;
-	signal(SIGINT, end);
-	signal(SIGQUIT, end);
-	signal(SIGTERM, end);
-	// std::cout << "Resource acquired" << std::endl;
+	signal(SIGINT, handle_signal);
+	signal(SIGQUIT, handle_signal);
+	signal(SIGTERM, handle_signal);
 	Tintin_reporter::get().log(LOG_INFO, "Daemon running");
 
 	// server
@@ -210,5 +213,5 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 	listen_and_serve(sock);
-	end(0);
+	exit_prog();
 }
