@@ -52,7 +52,6 @@ void Tintin_reporter::log(int priority, const char *s, ...)
 	va_start(ap, s);
 	log(priority, s, ap);
 	va_end(ap);
-
 }
 
 void Tintin_reporter::log(int priority, const char *s, va_list ap)
