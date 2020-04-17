@@ -5,6 +5,11 @@ simple daemon program using file locks, listening on a port and loging mesages r
 ## Example usage
 
 ```sh
+$ make
+g++ -Wall -Wextra -Werror -std=c++11 -Wno-unused-parameter   -c -o matt-daemon.o matt-daemon.cpp
+g++ -Wall -Wextra -Werror -std=c++11 -Wno-unused-parameter   -c -o server.o server.cpp
+g++ -Wall -Wextra -Werror -std=c++11 -Wno-unused-parameter   -c -o Tintin_reporter.o Tintin_reporter.cpp
+g++ -Wall -Wextra -Werror  matt-daemon.o server.o Tintin_reporter.o   -o matt-daemon
 $ ps aux | grep '[m]att-daemon'
 $ ./matt-daemon 
 $ ps aux | grep '[m]att-daemon'
