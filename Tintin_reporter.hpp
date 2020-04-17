@@ -15,8 +15,8 @@ class Tintin_reporter {
 	~Tintin_reporter(void);
 
 	static Tintin_reporter &get(void);
-	void log(std::string &s, ...);
-	void log(int priority, std::string &s, ...);
+	void log(std::string s, ...);
+	void log(int priority, std::string s, ...);
 	void log(const char *s, ...);
 	void log(int priority, const char *s, ...);
 	void log(int priority, const char *s, va_list ap);

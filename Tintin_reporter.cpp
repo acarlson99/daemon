@@ -18,7 +18,7 @@ Tintin_reporter::~Tintin_reporter() { closelog(); }
 
 Tintin_reporter &Tintin_reporter::get() { return g_r; }
 
-void Tintin_reporter::log(std::string &s, ...)
+void Tintin_reporter::log(std::string s, ...)
 {
 	va_list ap;
 
@@ -27,7 +27,7 @@ void Tintin_reporter::log(std::string &s, ...)
 	va_end(ap);
 }
 
-void Tintin_reporter::log(int priority, std::string &s, ...)
+void Tintin_reporter::log(int priority, std::string s, ...)
 {
 	va_list ap;
 
