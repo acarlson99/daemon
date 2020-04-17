@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <arpa/inet.h>
+#include <errno.h>
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
