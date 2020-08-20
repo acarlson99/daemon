@@ -7,7 +7,7 @@ NAME = matt-daemon
 
 all: $(NAME)
 
-matt-daemon: $(OFILES)
+$(NAME): $(OFILES)
 
 clean:
 	$(RM) $(OFILES)
